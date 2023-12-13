@@ -108,3 +108,17 @@ h1 {
         background-image:linear-gradient(to bottom, #585858 0%, #1B1B1B 51%);
     }
 }
+
+.deleteTask {
+    background-color: #ff5757;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 3px;
+    margin-right: 10%;
+    cursor: pointer;
+}
+
+.deleteTask:hover {
+    background-color: #e23b3b;
+}

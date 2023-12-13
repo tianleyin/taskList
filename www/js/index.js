@@ -27,8 +27,38 @@ function onDeviceReady() {
     console.log('Running cordova-' + cordova.platformId + '@' + cordova.version);
     // document.getElementById('deviceready').classList.add('ready');
 
-    $("#addTask").click(function() {
-        var newTask = $("<li>New Element</li>");
-        $("ul").append(newTask);
+    $("#addTask").click(function () {
+        var newTaskText = prompt("Enter the text for the new Task:");
+
+        if (newTaskText) {
+            var newItem = document.createElement("li");
+            var newLink = document.createElement("a");
+
+            var deleteButton = document.createElement("button");
+            deleteButton.className = "deleteTask";
+            deleteButton.appendChild(document.createTextNode("🗑️"));
+
+            newLink.appendChild(deleteButton);
+            newLink.appendChild(document.createTextNode(newTaskText));
+            newLink.href = "#" + newTaskText.toLowerCase();
+
+            newItem.appendChild(newLink);
+            $("ul").append(newItem)
+            $("ul").listview("refresh");
+        }
     })
+
+    document.body.addEventListener("click", function(event) {
+        if (event.target.classList.contains("deleteTask")) {
+            deleteTask(event.target);
+        }
+    });
+}
+
+function deleteTask(deleteButton) {
+    // Remove the corresponding task from the list
+    var taskItem = deleteButton.closest("li");
+    if (taskItem) {
+        taskItem.remove();
+    }
 }
