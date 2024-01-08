@@ -34,11 +34,15 @@ function onDeviceReady() {
             var newItem = document.createElement("li");
             var newLink = document.createElement("a");
 
-            var deleteButton = document.createElement("button");
-            deleteButton.className = "deleteTask";
-            deleteButton.appendChild(document.createTextNode("🗑️"));
+            var deleteButton = createButton("deleteTask", "🗑️");
+            var editButton = createButton("editTask", "✏️");
+
+            // var deleteButton = document.createElement("button");
+            // deleteButton.className = "deleteTask";
+            // deleteButton.appendChild(document.createTextNode("🗑️"));
 
             newLink.appendChild(deleteButton);
+            newLink.appendChild(editButton);
             newLink.appendChild(document.createTextNode(newTaskText));
             newLink.href = "#" + newTaskText.toLowerCase();
 
@@ -51,8 +55,17 @@ function onDeviceReady() {
     document.body.addEventListener("click", function(event) {
         if (event.target.classList.contains("deleteTask")) {
             deleteTask(event.target);
+        } else if (event.target.classList.contains("editTask")) {
+            editTask(event.target);
         }
     });
+}
+
+function createButton(className, buttonText) {
+    var button = document.createElement("button");
+    button.className = className;
+    button.appendChild(document.createTextNode(buttonText));
+    return button;
 }
 
 function deleteTask(deleteButton) {
@@ -60,5 +73,30 @@ function deleteTask(deleteButton) {
     var taskItem = deleteButton.closest("li");
     if (taskItem) {
         taskItem.remove();
+    }
+}
+
+function editTask(editButton) {
+    var taskItem = editButton.closest("li");
+    if (taskItem) {
+        var taskLink = taskItem.querySelector("a");
+        var taskText = taskLink.lastChild.nodeValue.trim(); // Obtener solo el texto
+
+        // Crear un elemento de entrada
+        var inputElement = document.createElement("input");
+        inputElement.type = "text";
+        inputElement.value = taskText;
+
+        // Reemplazar el texto con el elemento de entrada
+        taskLink.replaceChild(inputElement, taskLink.lastChild);
+
+        // Enfocar en el elemento de entrada
+        inputElement.focus();
+
+        // Agregar un event listener para manejar la edición
+        inputElement.addEventListener("blur", function() {
+            // Cuando el elemento de entrada pierde el foco, actualizar el texto en el enlace
+            taskLink.replaceChild(document.createTextNode(inputElement.value), inputElement);
+        });
     }
 }
