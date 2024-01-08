@@ -43,7 +43,7 @@ function onDeviceReady() {
 
             newLink.appendChild(deleteButton);
             newLink.appendChild(editButton);
-            newLink.appendChild(document.createTextNode(newTaskText));
+            newLink.appendChild(document.createTextNode(" · " + newTaskText));
             newLink.href = "#" + newTaskText.toLowerCase();
 
             newItem.appendChild(newLink);
