@@ -26,6 +26,33 @@ function onDeviceReady() {
 
     console.log('Running cordova-' + cordova.platformId + '@' + cordova.version);
     // document.getElementById('deviceready').classList.add('ready');
+    var parseLocal = JSON.parse(localStorage.getItem("dades"));
+    if (parseLocal == null) {
+        var arrayTask = [];
+    } else {
+        var arrayTask = parseLocal;
+    }
+
+    if (arrayTask.length > 0) {
+        for (var i = 0; i < arrayTask.length; i++) {
+            var newItemLocal = document.createElement("li");
+            var newLinkLocal = document.createElement("a");
+
+            var deleteButtonLocal = createButton("deleteTask", "🗑️");
+            var editButtonLocal = createButton("editTask", "✏️");
+
+            newLinkLocal.appendChild(deleteButtonLocal);
+            newLinkLocal.appendChild(editButtonLocal);
+            newLinkLocal.appendChild(document.createTextNode(arrayTask[i]));
+            newLinkLocal.href = "#" + arrayTask[i].toLowerCase();
+
+            newItemLocal.appendChild(newLinkLocal);
+            $("ul").append(newItemLocal);
+            $("ul").listview("refresh");
+        }
+    } else {
+        console.log("Dades está vacío");
+    }
 
     $("#addTask").click(function () {
         var newTaskText = prompt("Enter the text for the new Task:");
@@ -43,7 +70,19 @@ function onDeviceReady() {
 
             newLink.appendChild(deleteButton);
             newLink.appendChild(editButton);
-            newLink.appendChild(document.createTextNode(" · " + newTaskText));
+
+            if (arrayTask == null) {
+                arrayTask = [];
+                arrayTask.push(newTaskText);
+                localStorage.setItem("dades", JSON.stringify(arrayTask));
+                console.log(arrayTask);
+            } else {
+                arrayTask.push(newTaskText);
+                localStorage.setItem("dades", JSON.stringify(arrayTask));
+                console.log(arrayTask);
+            }
+
+            newLink.appendChild(document.createTextNode(newTaskText));
             newLink.href = "#" + newTaskText.toLowerCase();
 
             newItem.appendChild(newLink);
@@ -52,7 +91,7 @@ function onDeviceReady() {
         }
     })
 
-    document.body.addEventListener("click", function(event) {
+    document.body.addEventListener("click", function (event) {
         if (event.target.classList.contains("deleteTask")) {
             deleteTask(event.target);
         } else if (event.target.classList.contains("editTask")) {
@@ -69,7 +108,18 @@ function createButton(className, buttonText) {
 }
 
 function deleteTask(deleteButton) {
-    // Remove the corresponding task from the list
+    // Obtén el enlace y el texto asociado al botón de eliminar
+    var taskLink = deleteButton.closest("a");
+
+    var taskText = taskLink.textContent.trim().substring(4);
+    console.log(taskLink);
+    console.log(taskText);
+
+    var arrayTask = localStorage.getItem("dades");
+    // Elimina la tarea del localStorage
+    arrayTask = arrayTask.filter(task => task !== taskText);
+    localStorage.setItem("dades", JSON.stringify(arrayTask));
+
     var taskItem = deleteButton.closest("li");
     if (taskItem) {
         taskItem.remove();
@@ -80,7 +130,7 @@ function editTask(editButton) {
     var taskItem = editButton.closest("li");
     if (taskItem) {
         var taskLink = taskItem.querySelector("a");
-        var taskText = taskLink.lastChild.nodeValue.trim(); // Obtener solo el texto
+        var taskText = taskLink.lastChild.nodeValue.trim();
 
         // Crear un elemento de entrada
         var inputElement = document.createElement("input");
@@ -94,7 +144,7 @@ function editTask(editButton) {
         inputElement.focus();
 
         // Agregar un event listener para manejar la edición
-        inputElement.addEventListener("blur", function() {
+        inputElement.addEventListener("blur", function () {
             // Cuando el elemento de entrada pierde el foco, actualizar el texto en el enlace
             taskLink.replaceChild(document.createTextNode(inputElement.value), inputElement);
         });
