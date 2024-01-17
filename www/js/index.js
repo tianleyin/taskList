@@ -120,6 +120,7 @@ function deleteTask(deleteButton) {
     var index = arrayTask.indexOf(taskText);
     console.log("Índice de la tarea a eliminar:", index);
 
+    // He hecho que elimine el primer objeto que coincida con el nombre de la tarea
     if (index !== -1) {
         arrayTask.splice(index, 1);
 
