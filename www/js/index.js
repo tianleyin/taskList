@@ -77,9 +77,10 @@ function onDeviceReady() {
                 localStorage.setItem("dades", JSON.stringify(arrayTask));
                 console.log(arrayTask);
             } else {
-                arrayTask.push(newTaskText);
-                localStorage.setItem("dades", JSON.stringify(arrayTask));
-                console.log(arrayTask);
+                var arrayTasques = JSON.parse(localStorage.getItem("dades"));
+                arrayTasques.push(newTaskText);
+                localStorage.setItem("dades", JSON.stringify(arrayTasques));
+                console.log(arrayTasques);
             }
 
             newLink.appendChild(document.createTextNode(newTaskText));
@@ -108,17 +109,26 @@ function createButton(className, buttonText) {
 }
 
 function deleteTask(deleteButton) {
-    // Obtén el enlace y el texto asociado al botón de eliminar
     var taskLink = deleteButton.closest("a");
 
-    var taskText = taskLink.textContent.trim().substring(4);
-    console.log(taskLink);
-    console.log(taskText);
+    var taskText = taskLink.textContent.trim().substring(5);
+    console.log("Tarea a eliminar:", taskText);
 
-    var arrayTask = localStorage.getItem("dades");
-    // Elimina la tarea del localStorage
-    arrayTask = arrayTask.filter(task => task !== taskText);
-    localStorage.setItem("dades", JSON.stringify(arrayTask));
+    var arrayTask = JSON.parse(localStorage.getItem("dades"));
+    console.log("Array de tareas antes de la eliminación:", arrayTask);
+
+    var index = arrayTask.indexOf(taskText);
+    console.log("Índice de la tarea a eliminar:", index);
+
+    if (index !== -1) {
+        arrayTask.splice(index, 1);
+
+        localStorage.setItem("dades", JSON.stringify(arrayTask));
+        console.log("Array de tareas después de la eliminación:", arrayTask);
+        console.log("localStorage después de la eliminación:", localStorage.getItem("dades"));
+    } else {
+        console.log("La tarea no se encontró en el array.");
+    }
 
     var taskItem = deleteButton.closest("li");
     if (taskItem) {
@@ -126,27 +136,41 @@ function deleteTask(deleteButton) {
     }
 }
 
+
+
 function editTask(editButton) {
     var taskItem = editButton.closest("li");
     if (taskItem) {
         var taskLink = taskItem.querySelector("a");
-        var taskText = taskLink.lastChild.nodeValue.trim();
+        var originalTaskText = taskLink.lastChild.nodeValue.trim();
 
-        // Crear un elemento de entrada
         var inputElement = document.createElement("input");
         inputElement.type = "text";
-        inputElement.value = taskText;
+        inputElement.value = originalTaskText;
 
-        // Reemplazar el texto con el elemento de entrada
         taskLink.replaceChild(inputElement, taskLink.lastChild);
 
-        // Enfocar en el elemento de entrada
         inputElement.focus();
 
-        // Agregar un event listener para manejar la edición
         inputElement.addEventListener("blur", function () {
-            // Cuando el elemento de entrada pierde el foco, actualizar el texto en el enlace
-            taskLink.replaceChild(document.createTextNode(inputElement.value), inputElement);
+            var newTaskText = inputElement.value;
+
+            taskLink.replaceChild(document.createTextNode(newTaskText), inputElement);
+
+            if (newTaskText !== originalTaskText) {
+                updateTaskInLocalStorage(originalTaskText, newTaskText);
+            }
         });
+    }
+}
+
+function updateTaskInLocalStorage(originalTaskText, newTaskText) {
+    var arrayTask = JSON.parse(localStorage.getItem("dades")) || [];
+
+    var index = arrayTask.indexOf(originalTaskText);
+    if (index !== -1) {
+        arrayTask[index] = newTaskText;
+
+        localStorage.setItem("dades", JSON.stringify(arrayTask));
     }
 }
